@@ -1,47 +1,45 @@
-import express from "express";
-import { MongoClient, ObjectId } from "mongodb";
-import cors from "cors";
+// Thêm (POST)
+async function addTodo() {
+  const text = input.value.trim();
+  const deadline = timeInput.value;
 
-const app = express();
-const port = process.env.PORT || 3000;
-app.use(cors());
-// MongoDB Atlas URI (thay username + password + db name của bạn vào đây)
-const uri = "mongodb+srv://todoApp:1@cluster0.v5aaw6i.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+  if (text && deadline) {
+    const newTodo = { text, done: false, deadline };
 
-const client = new MongoClient(uri);
-app.use(express.json());
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newTodo)
+    });
 
-// Lấy tất cả todos
-app.get("/todolists", async (req, res) => {
-  await client.connect();
-  const todos = await client.db("todo_app").collection("todolists").find().toArray();
-  res.json(todos);
-});
+    const data = await res.json();
+    todos.push(data);
 
-// Thêm todo
-app.post("/todolists", async (req, res) => {
-  await client.connect();
-  const result = await client.db("todo_app").collection("todolists").insertOne(req.body);
-  res.json(result);
-});
+    input.value = "";
+    timeInput.value = "";
 
-// Sửa todo
-app.patch("/todolists/:id", async (req, res) => {
-  await client.connect();
-  const result = await client.db("todo_app").collection("todolists").updateOne(
-    { _id: new ObjectId(req.params.id) },
-    { $set: req.body }
-  );
-  res.json(result);
-});
+    renderTodos(); // ✅ Vẽ lại sau khi thêm
+  }
+}
 
-// Xóa todo
-app.delete("/todolists/:id", async (req, res) => {
-  await client.connect();
-  const result = await client.db("todo_app").collection("todolists").deleteOne({
-    _id: new ObjectId(req.params.id)
+// Xóa (DELETE)
+async function deleteTodo(id) {
+  await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  todos = todos.filter(todo => todo.id !== id);
+  renderTodos(); // ✅ Vẽ lại sau khi xóa
+}
+
+// Làm xong (PATCH/PUT)
+async function toggleDone(id) {
+  const todo = todos.find(t => t.id === id);
+  const updated = { ...todo, done: !todo.done };
+
+  await fetch(`${API_URL}/${id}`, {
+    method: "PATCH", // PATCH là đúng hơn, PUT sẽ thay toàn bộ object
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ done: updated.done })
   });
-  res.json(result);
-});
 
-app.listen(port, () => console.log(`✅ Server chạy ở http://localhost:${port}`));
+  todo.done = updated.done;
+  renderTodos(); // ✅ Vẽ lại sau khi toggle
+}
