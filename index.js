@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // 🔹 Kết nối MongoDB Atlas
-const uri = process.env.MONGO_URI || "mongodb+srv://todoUser:<password>@cluster0.mongodb.net/";
+const uri = process.env.MONGO_URI || "mongodb+srv://todoApp:1@cluster0.v5aaw6i.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const client = new MongoClient(uri);
 const dbName = "todoApp";
 
