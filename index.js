@@ -6,7 +6,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // middleware
-app.use(cors()); // cho phép gọi API từ frontend (GitHub Pages, localhost, ...)
+app.use(cors({
+  origin: "*", // Cho phép gọi từ tất cả domain (GitHub Pages, localhost,...)
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json());
 
 // MongoDB connection
@@ -26,7 +30,6 @@ async function connectDB() {
   }
 }
 connectDB();
-
 
 // ========== Routes ==========
 
@@ -68,10 +71,10 @@ app.delete("/todolists/:id", async (req, res) => {
 
 // root test
 app.get("/", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // backup
   res.send("Todo API running...");
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
- 
