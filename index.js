@@ -1,9 +1,10 @@
 import express from "express";
 import { MongoClient, ObjectId } from "mongodb";
+import cors from "cors";
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+app.use(cors());
 // MongoDB Atlas URI (thay username + password + db name của bạn vào đây)
 const uri = "mongodb+srv://todoApp:1@cluster0.v5aaw6i.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 
